@@ -1,25 +1,67 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {useEffect} from 'react'
+import Context from "./context"
+import TodoList from "./Todo/TodoList"
+import './App.css'
+import ModalDialog from "./ModalDialog/ModalDialog";
+
+const AddTodo = React.lazy(() => import('./Todo/AddTodo'))
 
 function App() {
+    const [todos, setTodos] = React.useState([])
+    const [loading, setLoading] = React.useState(true)
+
+    useEffect(() => {
+        fetch('https://jsonplaceholder.typicode.com/todos')
+            .then(response => response.json())
+            .then(t => {
+                setTimeout(() => {
+                    setTodos(t)
+                    setLoading(false)
+                    },
+                    2000)
+
+            })
+            .catch((err) => {
+                setLoading(false)
+                console.log(err)})
+    }, [])
+
+    function addTodo(title) {
+        setTodos(todos.concat([{
+            id: Date.now(),
+            title,
+            completed: false
+        }]))
+    }
+
+    function toggleTodo(id) {
+        setTodos(todos.map(t => {
+            if(t.id === id) {
+                t.completed = !t.completed
+            }
+            return t
+        }))
+    }
+
+    function removeTodo(id) {
+        setTodos(todos.filter(t => t.id !== id))
+    }
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <Context.Provider value={{toggleTodo, removeTodo}}>
+        <div className="wrapper">
+            <h1>Todo List</h1>
+            <ModalDialog />
+            <React.Suspense fallback={<p>Loading</p>}>
+                <AddTodo create={addTodo}/>
+            </React.Suspense>
+
+            {
+                todos.length
+                ? <TodoList todos={todos} toggle={toggleTodo}/>
+                : loading ? <h3>Loading...</h3> : <h3>No todos!</h3>}
+
+        </div>
+      </Context.Provider>
   );
 }
 

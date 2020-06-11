@@ -1,0 +1,19 @@
+.modal-dialog {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(240, 128, 128, 0.65);
+    display: flex;
+    justify-content: center;
+    padding-top: 5rem;
+}
+
+.modal-dialog-body {
+    padding: 1.2rem;
+    width: 40%;
+    border-radius: 10px;
+    background: white;
+    height: 40%;
+}
